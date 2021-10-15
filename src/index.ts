@@ -1,18 +1,17 @@
 export type TMtaFetchMethod = 'GET'|'POST'|'PUT'|'PATCH'|'DELETE'
 	|'get'|'post'|'put'|'patch'|'delete'
 
-export interface IMtaFetchApis {
-	[key: string]: {
-		url: string
-		method: TMtaFetchMethod
-		withoutToken?: boolean
+export interface IMetaFetchApi {
+	url: string
+	method: TMtaFetchMethod
+	withToken?: boolean,
+	errMsgs?: {
+		[status: number]: string
 	}
 }
 
-export interface IMtaFetchErrorMsgs {
-	[key: string]: {
-		[status: number]: string
-	}
+export interface IMtaFetchApis {
+	[key: string]: IMetaFetchApi
 }
 
 export interface IMtaFetchSendResult {
@@ -26,19 +25,16 @@ export default class MtaFetch {
 	private _host: string = ''
 	private _token: string = ''
 	private _apiMap: IMtaFetchApis = {}
-	private _errMsgs: IMtaFetchErrorMsgs = {}
 
 	constructor (option: {
 		host: string,
 		apis: IMtaFetchApis,
-		errMsgs: IMtaFetchErrorMsgs,
 		token?: string
 	}) {
-		const { host, token, apis, errMsgs } = option
+		const { host, token, apis } = option
 		if (host) this._host = host
 		if (token) this._token = token
 		if (apis) this._apiMap = apis
-		if (errMsgs) this._errMsgs = errMsgs
 	}
 
 	public computeWholeUrl (options: {
@@ -84,13 +80,13 @@ export default class MtaFetch {
 		headers?: {
 			[key: string]: any
 		},
-		errMsg?: {
+		errMsgs?: {
 			[status: number]: string
 		}
 	}): Promise<IMtaFetchSendResult> {
 		try {
-			const { type, urlParams = {}, query = {}, data = {}, formData = false, headers = {}, errMsg } = option
-			const { _host, _apiMap, _errMsgs, _token } = this
+			const { type, urlParams = {}, query = {}, data = {}, formData = false, headers = {}, errMsgs } = option
+			const { _host, _apiMap, _token } = this
 			if (!_apiMap[type]) {
 				return {
 					status: 0,
@@ -99,7 +95,7 @@ export default class MtaFetch {
 					data: undefined
 				}
 			}
-			const { url: theUrl = '', method, withoutToken } = _apiMap[type]
+			const { url: theUrl = '', method, withToken = false, errMsgs: defaultErrMsgs = {} } = _apiMap[type]
 
 			const wholeUrl = this.computeWholeUrl({
 				url: `${_host}${theUrl}`,
@@ -118,7 +114,7 @@ export default class MtaFetch {
 				fetchHeaders['Content-Type'] = 'multipart/form-data'
 			}
 			// 是否需要携带token
-			if (!withoutToken) {
+			if (withToken) {
 				fetchHeaders.Authorization = _token
 			}
 
@@ -143,7 +139,7 @@ export default class MtaFetch {
 			return {
 				status,
 				ok,
-				errMsg: errMsg && errMsg[status] ? errMsg[status] : _errMsgs[type][status] || '',
+				errMsg: errMsgs && errMsgs[status] ? errMsgs[status] : defaultErrMsgs[status] || '',
 				data: resData
 			}
 		} catch (err) {
@@ -181,39 +177,14 @@ export default class MtaFetch {
 		this._apiMap = apis
 	}
 
-	public getErrMsgs () {
-		return this._errMsgs
-	}
-
-	public setErrMsgs (errMsgs: IMtaFetchErrorMsgs) {
-		this._errMsgs = errMsgs
-	}
-
 	public getApiByType (type: string) {
 		return this._apiMap[type]
 	}
 
-	public setApiByType (type: string, api: {
-		url: string
-		method: TMtaFetchMethod
-		withoutToken?: boolean
-	}) {
+	public setApiByType (type: string, api: IMetaFetchApi) {
 		this._apiMap = {
 			...this._apiMap,
 			[type]: api
-		}
-	}
-
-	public getErrMsgByType (type: string) {
-		return this._errMsgs[type]
-	}
-
-	public setErrMsgByType (type: string, errMsg: {
-		[status: number]: string
-	}) {
-		this._errMsgs = {
-			...this._errMsgs,
-			[type]: errMsg
 		}
 	}
 }

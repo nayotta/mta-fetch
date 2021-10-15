@@ -4,6 +4,12 @@
 
 > a simple browser fetch module.
 
+## install
+
+```sh
+$ npm install @nayotta/mta-fetch --save
+```
+
 ## example
 
 ```js
@@ -14,18 +20,16 @@ const mtaFetch = new MtaFetch({
 	apis: {
 		signin: {
 			url: '/v1/signin',
-			method: 'post'
+			method: 'post',
+			errMsgs: {
+				200: 'signin success',
+				401: 'unauthorization',
+				500: 'sever error'
+			}
 		},
 		getInfo: {
 			url: '/v1/books/type/:id',
 			method: 'get'
-		}
-	},
-	errMsgs: {
-		signin: {
-			200: 'signin success',
-			401: 'unauthorization',
-			500: 'sever error'
 		}
 	}
 })
@@ -43,6 +47,7 @@ mtaFetch.send({
 	console.log(ok, status, errMsg, data)
 })
 
+mtaFetch.setToken('Bearer token')
 
 mtaFetch.send({
 	type: 'getInfo',
