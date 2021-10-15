@@ -1,9 +1,6 @@
-export type TMtaFetchMethod = 'GET'|'POST'|'PUT'|'PATCH'|'DELETE'
-	|'get'|'post'|'put'|'patch'|'delete'
-
 export interface IMetaFetchApi {
 	url: string
-	method: TMtaFetchMethod
+	method: string
 	withToken?: boolean,
 	errMsgs?: {
 		[status: number]: string
@@ -124,9 +121,10 @@ export default class MtaFetch {
 				body
 			}
 			// Request with GET/HEAD method cannot have body
-			if (['GET', 'HEAD'].includes(method)) delete fetchInit.body
+			if (['GET', 'get', 'HEAD', 'head'].includes(method)) delete fetchInit.body
 			const res = await fetch(wholeUrl, fetchInit).catch((err: Error) => err)
 			if (res instanceof Error) {
+				console.error(res)
 				return {
 					status: -1,
 					ok: false,
@@ -144,6 +142,7 @@ export default class MtaFetch {
 			}
 		} catch (err) {
 			const error = err as Error
+			console.error(error)
 			return {
 				status: 0,
 				ok: false,
