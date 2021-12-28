@@ -7,10 +7,6 @@ export interface IMetaFetchApi {
 	}
 }
 
-export interface IMtaFetchApis {
-	[key: string]: IMetaFetchApi
-}
-
 export interface IMtaFetchSendResult {
 	status: number
 	ok: boolean
@@ -18,26 +14,32 @@ export interface IMtaFetchSendResult {
 	data: any
 }
 
-export default class MtaFetch {
+export default class MtaFetch <T extends string | number | symbol> {
 	private _host: string = ''
 	private _token: string = ''
-	private _apiMap: IMtaFetchApis = {}
+	private _apiMap: {
+		// eslint-disable-next-line no-unused-vars
+		[key in T]: IMetaFetchApi
+	}
 
 	constructor (option: {
 		host: string,
-		apis: IMtaFetchApis,
+		apis: {
+			// eslint-disable-next-line no-unused-vars
+			[key in T]: IMetaFetchApi
+		},
 		token?: string
 	}) {
 		const { host, token, apis } = option
-		if (host) this._host = host
-		if (token) this._token = token
-		if (apis) this._apiMap = apis
+		this._host = host
+		this._apiMap = apis
+		this._token = token || ''
 	}
 
 	public computeWholeUrl (options: {
 		url: string,
-		urlParams: { [key: string]: string|number|boolean },
-		query: { [key: string]: string|number|boolean }
+		urlParams: { [key: string]: string | number | boolean },
+		query: { [key: string]: string | number | boolean }
 	}) {
 		const { url = '', urlParams = {}, query = {} } = options
 		let wholeUrl = url
@@ -69,8 +71,8 @@ export default class MtaFetch {
 	}
 
 	public async send (option: {
-		type: string,
-		urlParams?: { [key: string]: string|number|boolean },
+		type: T,
+		urlParams?: { [key: string]: string | number | boolean },
 		query?: { [key: string]: any },
 		data?: { [key: string]: any },
 		formData?: boolean,
@@ -84,7 +86,7 @@ export default class MtaFetch {
 		try {
 			const { type, urlParams = {}, query = {}, data = {}, formData = false, headers = {}, errMsgs } = option
 			const { _host, _apiMap, _token } = this
-			if (!_apiMap[type]) {
+			if (!_apiMap || !_apiMap[type]) {
 				return {
 					status: 0,
 					ok: false,
@@ -172,18 +174,14 @@ export default class MtaFetch {
 		return this._apiMap
 	}
 
-	public setApis (apis: IMtaFetchApis) {
+	public setApis (apis: {
+		// eslint-disable-next-line no-unused-vars
+		[key in T]: IMetaFetchApi
+	}) {
 		this._apiMap = apis
 	}
 
-	public getApiByType (type: string) {
+	public getApiByType (type: T) {
 		return this._apiMap[type]
-	}
-
-	public setApiByType (type: string, api: IMetaFetchApi) {
-		this._apiMap = {
-			...this._apiMap,
-			[type]: api
-		}
 	}
 }

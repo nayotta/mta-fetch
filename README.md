@@ -1,6 +1,6 @@
 # mta-fetch
 
-[![Build and Lint](https://github.com/nayotta/mta-fetch/actions/workflows/build.yml/badge.svg)](https://github.com/nayotta/mta-fetch/actions/workflows/build.yml)
+[![Build & Lint & Test](https://github.com/nayotta/mta-fetch/actions/workflows/build.yml/badge.svg)](https://github.com/nayotta/mta-fetch/actions/workflows/build.yml)
 
 > a simple browser fetch module.
 

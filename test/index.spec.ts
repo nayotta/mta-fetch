@@ -3,20 +3,7 @@ import MtaFetch from '../src'
 const host = 'http://example.com'
 const simpleFetch = new MtaFetch({
 	host,
-	apis: {}
-})
-
-test('initial', () => {
-	expect(simpleFetch.getHost()).toBe(host)
-	expect(simpleFetch.getToken()).toBe('')
-	expect(Object.keys(simpleFetch.getApis()).length).toBe(0)
-})
-
-test('set funcs', () => {
-	simpleFetch.setToken('Bearer test')
-	expect(simpleFetch.getToken()).toBe('Bearer test')
-
-	simpleFetch.setApis({
+	apis: {
 		test: {
 			url: '/v1/test',
 			method: 'GET',
@@ -25,24 +12,22 @@ test('set funcs', () => {
 				400: 'bad request'
 			}
 		}
-	})
+	}
+})
+
+test('initial', () => {
+	expect(simpleFetch.getHost()).toBe(host)
+	expect(simpleFetch.getToken()).toBe('')
+	expect(Object.keys(simpleFetch.getApis()).length).toBe(1)
+})
+
+test('set funcs', () => {
+	simpleFetch.setToken('Bearer test')
+	expect(simpleFetch.getToken()).toBe('Bearer test')
 	expect(simpleFetch.getApis().test.url).toBe('/v1/test')
 	expect(simpleFetch.getApis().test.method).toBe('GET')
 	expect(simpleFetch.getApis().test.withToken).toBe(true)
 	expect(simpleFetch.getApis().test.errMsgs?.[400]).toBe('bad request')
-
-	simpleFetch.setApiByType('test2', {
-		url: '/v1/test2',
-		method: 'POST',
-		errMsgs: {
-			401: 'unauthorization'
-		}
-	})
-	expect(simpleFetch.getApiByType('test2').url).toBe('/v1/test2')
-	expect(simpleFetch.getApiByType('test2').method).toBe('POST')
-	expect(simpleFetch.getApis().test2.url).toBe('/v1/test2')
-	expect(simpleFetch.getApis().test2.method).toBe('POST')
-	expect(simpleFetch.getApis().test2.errMsgs?.[401]).toBe('unauthorization')
 })
 
 test('computeWholeUrl', () => {
