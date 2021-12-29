@@ -7,14 +7,7 @@ export interface IMetaFetchApi {
 	}
 }
 
-export interface IMtaFetchSendResult {
-	status: number
-	ok: boolean
-	errMsg: string
-	data: any
-}
-
-export default class MtaFetch <T extends string | number | symbol> {
+export default class MtaFetch <T extends string | number | symbol = string> {
 	private _host: string = ''
 	private _token: string = ''
 	private _apiMap: {
@@ -70,7 +63,7 @@ export default class MtaFetch <T extends string | number | symbol> {
 		return formData
 	}
 
-	public async send (option: {
+	public async send <D = any> (option: {
 		type: T,
 		urlParams?: { [key: string]: string | number | boolean },
 		query?: { [key: string]: any },
@@ -82,7 +75,12 @@ export default class MtaFetch <T extends string | number | symbol> {
 		errMsgs?: {
 			[status: number]: string
 		}
-	}): Promise<IMtaFetchSendResult> {
+	}): Promise<{
+		status: number
+		ok: boolean
+		errMsg: string
+		data?: D
+	}> {
 		try {
 			const { type, urlParams = {}, query = {}, data = {}, formData = false, headers = {}, errMsgs } = option
 			const { _host, _apiMap, _token } = this
@@ -130,8 +128,7 @@ export default class MtaFetch <T extends string | number | symbol> {
 				return {
 					status: -1,
 					ok: false,
-					errMsg: res.message,
-					data: undefined
+					errMsg: res.message
 				}
 			}
 			const { status, ok } = res
@@ -148,8 +145,7 @@ export default class MtaFetch <T extends string | number | symbol> {
 			return {
 				status: 0,
 				ok: false,
-				errMsg: error.message,
-				data: undefined
+				errMsg: error.message
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 {
   "name": "@nayotta/mta-fetch",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "fetch module",
   "main": "lib/index.js",
   "exports": {

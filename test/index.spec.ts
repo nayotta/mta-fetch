@@ -111,12 +111,17 @@ test('bad request', async () => {
 			}
 		}
 	})
-	const result = await mtaFetch.send({
+	const result = await mtaFetch.send<{
+		data: string
+	}>({
 		type: 'test'
 	})
 
 	expect(result.ok).toBe(false)
 	expect(result.status).toBe(400)
 	expect(result.errMsg).toBe('bad request')
-	expect(result.data.data).toBe('BAD REQUEST')
+	expect(typeof result.data).toBe('object')
+	if (result.data) {
+		expect(result.data.data).toBe('BAD REQUEST')
+	}
 })
